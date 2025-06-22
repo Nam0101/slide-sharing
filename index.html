@@ -224,8 +224,7 @@
                         </p>
                     </div>
                     <div class="animated-item shrink-0">
-                        <img src="meme.jpg"
-                            alt="Meme" class="rounded-lg shadow-lg w-72">
+                        <img src="meme.jpg" alt="Meme" class="rounded-lg shadow-lg w-72">
                     </div>
                 </div>
                 <div class="mt-16 border-t border-[var(--border-color)] pt-8 animated-item text-center w-full">
@@ -626,8 +625,71 @@
             </div>
         </section>
 
-        <!-- Slide 20: Hệ sinh thái MCP -->
+        <!-- Slide 20: Nguyên lý hoạt động MCP -->
         <section class="slide" id="slide-20">
+            <div class="slide-content">
+                <h2 class="slide-title animated-item">Nguyên lý hoạt động của MCP</h2>
+                <p class="slide-subtitle animated-item">Giao tiếp Trạng thái và Ba Thực thể Cốt lõi</p>
+                <div class="space-y-5 text-lg">
+                    <div class="p-4 bg-[#21262d] rounded-lg animated-item">
+                        <h3 class="font-bold text-[var(--accent-orange)] text-xl mb-2">Giao thức JSON-RPC 2.0 Trạng thái
+                        </h3>
+                        <p>MCP sử dụng JSON-RPC 2.0 để thiết lập và duy trì một phiên giao tiếp có trạng thái (stateful)
+                            giữa Host và Server, cho phép các tương tác phức tạp, đa bước.</p>
+                    </div>
+                    <div class="p-4 bg-[#21262d] rounded-lg animated-item">
+                        <h3 class="font-bold text-[var(--accent-orange)] text-xl mb-2">Khả năng Thương lượng
+                            (Negotiation)</h3>
+                        <p>Khi kết nối, Client và Server "thương lượng" về các chức năng được hỗ trợ, đảm bảo cả hai bên
+                            đều hiểu rõ khả năng của nhau trước khi thực hiện tác vụ.</p>
+                    </div>
+                    <div class="p-4 bg-[#21262d] rounded-lg animated-item">
+                        <h3 class="font-bold text-[var(--accent-orange)] text-xl mb-2">Ba Thực thể Chính</h3>
+                        <ul class="list-disc list-inside mt-2 space-y-1">
+                            <li><strong>Host:</strong> Ứng dụng chứa LLM (ví dụ: một IDE, desktop app).</li>
+                            <li><strong>Client:</strong> Module bên trong Host, chịu trách nhiệm giao tiếp với Server.
+                            </li>
+                            <li><strong>Server:</strong> Dịch vụ cung cấp Tools và Resources cho Host.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 21: Thành phần kỹ thuật MCP -->
+        <section class="slide" id="slide-21">
+            <div class="slide-content">
+                <h2 class="slide-title animated-item">Thành phần kỹ thuật cốt lõi</h2>
+                <p class="slide-subtitle animated-item">Building Blocks của một Agentic Workflow</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 text-base">
+                    <div class="bg-[#21262d] p-4 rounded-lg animated-item">
+                        <h3 class="font-bold text-white text-lg mb-2">1. Resources</h3>
+                        <p>Dữ liệu chỉ đọc (file, nội dung DB, response API) cung cấp ngữ cảnh nền cho LLM.</p>
+                    </div>
+                    <div class="bg-[#21262d] p-4 rounded-lg animated-item">
+                        <h3 class="font-bold text-white text-lg mb-2">2. Tools</h3>
+                        <p>Các hàm có thể thực thi (gọi API, truy vấn DB) mà LLM có thể gọi để hành động.</p>
+                    </div>
+                    <div class="bg-[#21262d] p-4 rounded-lg animated-item">
+                        <h3 class="font-bold text-white text-lg mb-2">3. Prompts</h3>
+                        <p>Các mẫu giao diện hoặc kịch bản được định sẵn để hướng dẫn người dùng và hệ thống.</p>
+                    </div>
+                </div>
+                <div class="mt-6 p-4 bg-[#21262d] rounded-lg animated-item">
+                    <h3 class="font-bold text-white text-lg mb-2">Luồng hoạt động & Ưu điểm</h3>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li><strong>Luồng hoạt động:</strong> Client khởi tạo, hai bên thương lượng schema, sau đó LLM
+                            có thể yêu cầu Resources hoặc thực thi Tools theo một chuỗi logic để hoàn thành mục tiêu.
+                        </li>
+                        <li><strong>Ưu điểm chính:</strong> Chuẩn hóa (model-agnostic), giảm chi phí tích hợp (M x N → M
+                            + N), và tăng cường bảo mật thông qua kiểm soát truy cập.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 22: Hệ sinh thái MCP -->
+        <section class="slide" id="slide-22">
             <div class="slide-content">
                 <h2 class="slide-title animated-item">Hệ sinh thái MCP và Tương lai</h2>
                 <ul class="list-disc list-inside mt-6 space-y-3 text-lg">
@@ -642,8 +704,8 @@
             </div>
         </section>
 
-        <!-- Slide 21: Case Study Koog -->
-        <section class="slide" id="slide-21">
+        <!-- Slide 23: Case Study Koog -->
+        <section class="slide" id="slide-23">
             <div class="slide-content">
                 <h2 class="slide-title animated-item">Case Study: Koog AI Framework trên Android</h2>
                 <p class="slide-subtitle animated-item">Chuyển từ lý thuyết sang thực tế.</p>
@@ -658,8 +720,8 @@
             </div>
         </section>
 
-        <!-- Slide 22: Koog trong thực tế -->
-        <section class="slide" id="slide-22">
+        <!-- Slide 24: Koog trong thực tế -->
+        <section class="slide" id="slide-24">
             <div class="slide-content">
                 <h2 class="slide-title animated-item">Koog trong thực tế: Agent đơn giản vs. Phức tạp</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
@@ -677,8 +739,8 @@
             </div>
         </section>
 
-        <!-- Slide 23: AI Tools 1 -->
-        <section class="slide" id="slide-23">
+        <!-- Slide 25: AI Tools 1 -->
+        <section class="slide" id="slide-25">
             <div class="slide-content">
                 <h2 class="slide-title animated-item">Hệ Sinh Thái Công Cụ AI (Phần 1)</h2>
                 <p class="slide-subtitle animated-item">Giao tiếp, Sáng tạo & Tìm kiếm thông minh</p>
@@ -699,8 +761,8 @@
             </div>
         </section>
 
-        <!-- Slide 24: AI Tools 2 -->
-        <section class="slide" id="slide-24">
+        <!-- Slide 26: AI Tools 2 -->
+        <section class="slide" id="slide-26">
             <div class="slide-content">
                 <h2 class="slide-title animated-item">Hệ Sinh Thái Công Cụ AI (Phần 2)</h2>
                 <p class="slide-subtitle animated-item">Tự động hóa, Nghiên cứu & Xây dựng sản phẩm</p>
@@ -721,8 +783,8 @@
             </div>
         </section>
 
-        <!-- Slide 25: Tổng kết -->
-        <section class="slide" id="slide-25">
+        <!-- Slide 27: Tổng kết -->
+        <section class="slide" id="slide-27">
             <div class="slide-content">
                 <h2 class="slide-title animated-item">Tổng kết những điểm chính</h2>
                 <ol class="list-decimal list-inside space-y-4 text-xl mt-6">
@@ -738,8 +800,8 @@
             </div>
         </section>
 
-        <!-- Slide 26: Tương lai -->
-        <section class="slide" id="slide-26">
+        <!-- Slide 28: Tương lai -->
+        <section class="slide" id="slide-28">
             <div class="slide-content">
                 <h2 class="slide-title animated-item">Tương lai là "Agentic" - Điều gì sắp xảy ra?</h2>
                 <ul class="list-disc list-inside mt-6 space-y-3 text-lg">
@@ -755,8 +817,8 @@
             </div>
         </section>
 
-        <!-- Slide 27: Q&A -->
-        <section class="slide" id="slide-27">
+        <!-- Slide 29: Q&A -->
+        <section class="slide" id="slide-29">
             <div class="slide-content text-center">
                 <h1 class="text-8xl font-black text-white animated-item">Q&A</h1>
                 <p class="text-3xl mt-8 mb-12 text-[var(--accent-orange)] animated-item">Cảm ơn sự lắng nghe của mọi
@@ -771,7 +833,7 @@
 
     <div id="navigation">
         <button id="prev-btn" class="nav-button">&larr; Trước</button>
-        <div id="slide-counter">1 / 27</div>
+        <div id="slide-counter">1 / 29</div>
         <button id="next-btn" class="nav-button">Tiếp &rarr;</button>
     </div>
 
@@ -787,10 +849,12 @@
 
         function showSlide(index) {
             const oldSlide = document.querySelector('.slide.active');
+            const oldIndex = currentSlide;
 
             if (isTransitioning || (oldSlide && index === currentSlide)) return;
             isTransitioning = true;
 
+            const direction = index > oldIndex ? 'next' : 'prev';
             const newSlide = slides[index];
             const newItems = newSlide.querySelectorAll('.animated-item');
 
@@ -798,8 +862,10 @@
                 onComplete: () => {
                     if (oldSlide) {
                         oldSlide.classList.remove('active');
-                        // Reset properties for performance and predictability
-                        gsap.set(oldSlide, { clearProps: 'all' });
+                        // Reset all inline styles for performance and predictability
+                        gsap.set(oldSlide, { clearProps: "all" });
+                        const oldItems = oldSlide.querySelectorAll('.animated-item');
+                        gsap.set(oldItems, { clearProps: "all" });
                     }
                     newSlide.classList.add('active');
                     currentSlide = index;
@@ -809,39 +875,68 @@
                 }
             });
 
-            // Animate out the old slide if it exists
-            if (oldSlide) {
-                tl.to(oldSlide, {
-                    scale: 0.9,
-                    autoAlpha: 0,
-                    duration: 0.7,
-                    ease: 'power2.in'
-                });
-            }
-
-            // Animate in the new slide
-            tl.fromTo(newSlide,
-                { scale: 1.1, autoAlpha: 0 },
-                {
+            // For the very first slide, use a simple fade-in.
+            if (!oldSlide) {
+                // Instantly make the new slide visible for GSAP to animate from
+                tl.set(newSlide, { autoAlpha: 1 });
+                tl.fromTo(newSlide, {
+                    scale: 0.95,
+                    autoAlpha: 0
+                }, {
                     scale: 1,
                     autoAlpha: 1,
-                    duration: 0.7,
-                    ease: 'power2.out'
-                },
-                oldSlide ? "-=0.2" : "<" // Overlap transition for a smoother effect
-            );
+                    duration: 0.8,
+                    ease: 'power3.out'
+                });
+                tl.fromTo(newItems, {
+                    y: 20,
+                    autoAlpha: 0
+                }, {
+                    y: 0,
+                    autoAlpha: 1,
+                    stagger: 0.08,
+                    duration: 0.8,
+                    ease: 'power3.out'
+                }, "-=0.6");
+                return;
+            }
 
-            // Animate in the new slide's content, overlapping with the slide transition
+            // For all subsequent slides, use a directional transition.
+            const xPercentOut = direction === 'next' ? -50 : 50;
+            const xPercentIn = direction === 'next' ? 50 : -50;
+
+            // Set initial state of new slide (off-screen and smaller)
+            gsap.set(newSlide, { autoAlpha: 1, xPercent: xPercentIn, scale: 0.8 });
+
+            // Animate out the old slide (move, scale down, and fade out)
+            tl.to(oldSlide, {
+                xPercent: xPercentOut,
+                scale: 0.8,
+                autoAlpha: 0,
+                duration: 0.8,
+                ease: 'power3.in'
+            });
+
+            // Animate in the new slide (move, scale up, and fade in)
+            tl.to(newSlide, {
+                xPercent: 0,
+                scale: 1,
+                autoAlpha: 1,
+                duration: 0.8,
+                ease: 'power3.out'
+            }, "<"); // Run simultaneously with the previous animation
+
+            // Animate in the new slide's content, slightly delayed
             tl.fromTo(newItems,
-                { y: 25, autoAlpha: 0 },
+                { y: 30, autoAlpha: 0 },
                 {
                     y: 0,
                     autoAlpha: 1,
                     stagger: 0.1,
-                    duration: 0.5,
+                    duration: 0.6,
                     ease: 'power2.out'
                 },
-                "-=0.4"
+                "-=0.5" // Start before the slide transition finishes
             );
         }
 
