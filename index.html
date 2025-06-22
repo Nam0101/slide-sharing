@@ -1,24 +1,33 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Từ Prompt Engineering đến AI Agent tự chủ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <style>
         /* --- Bảng màu mới dựa trên Logo iKame --- */
         :root {
-            --bg-dark: #0D1117; /* Gần như đen */
-            --bg-content: #161B22; /* Xám đậm cho nội dung */
-            --accent-orange: #F9A826; /* Cam-vàng từ logo */
-            --accent-orange-dark: #F59E0B; /* Cam đậm hơn cho hover */
-            --text-primary: #E6EDF3; /* Trắng ngà */
-            --text-secondary: #8B949E; /* Xám cho văn bản phụ */
-            --border-color: #30363D; /* Màu viền */
+            --bg-dark: #0D1117;
+            /* Gần như đen */
+            --bg-content: #161B22;
+            /* Xám đậm cho nội dung */
+            --accent-orange: #F9A826;
+            /* Cam-vàng từ logo */
+            --accent-orange-dark: #F59E0B;
+            /* Cam đậm hơn cho hover */
+            --text-primary: #E6EDF3;
+            /* Trắng ngà */
+            --text-secondary: #8B949E;
+            /* Xám cho văn bản phụ */
+            --border-color: #30363D;
+            /* Màu viền */
         }
 
         body {
@@ -29,34 +38,36 @@
         }
 
         .slide {
-            display: none;
+            display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             width: 100%;
             height: 100vh;
-            padding: 2rem; /* Giảm padding để có thêm không gian */
+            padding: 2rem;
+            /* Giảm padding để có thêm không gian */
             box-sizing: border-box;
             position: absolute;
             top: 0;
             left: 0;
-            opacity: 0;
-            transition: opacity 0.6s ease-in-out;
+            visibility: hidden;
+            /* GSAP will control this */
         }
 
         .slide.active {
-            display: flex;
-            opacity: 1;
             z-index: 10;
         }
 
         .slide-content {
             background-color: var(--bg-content);
-            padding: 3rem; /* Tăng padding nội dung một chút */
+            padding: 3rem;
+            /* Tăng padding nội dung một chút */
             border-radius: 1.5rem;
             width: 100%;
-            max-width: 1280px; /* Tăng chiều rộng tối đa */
-            max-height: 90vh; /* Tăng chiều cao tối đa */
+            max-width: 1280px;
+            /* Tăng chiều rộng tối đa */
+            max-height: 90vh;
+            /* Tăng chiều cao tối đa */
             overflow-y: auto;
             border: 1px solid var(--border-color);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
@@ -67,7 +78,8 @@
             font-weight: 900;
             font-size: 2.8rem;
             margin-bottom: 0.5rem;
-            border-bottom: 4px solid var(--accent-orange); /* Màu cam chủ đạo */
+            border-bottom: 4px solid var(--accent-orange);
+            /* Màu cam chủ đạo */
             padding-bottom: 1rem;
         }
 
@@ -78,9 +90,8 @@
         }
 
         .animated-item {
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 0.5s ease-out forwards;
+            /* GSAP will now handle all animation properties, including initial visibility. */
+            visibility: hidden;
         }
 
         @keyframes fadeInUp {
@@ -100,21 +111,23 @@
             font-size: 14px;
             font-weight: 600;
         }
-        
+
         .interactive-question {
             background-color: #21262d;
             cursor: pointer;
             transition: background-color 0.2s;
         }
+
         .interactive-question:hover {
             background-color: #30363d;
         }
+
         .answer {
             display: none;
             background-color: var(--bg-dark);
             border-left: 3px solid var(--accent-orange);
         }
-        
+
         .nav-button {
             position: fixed;
             bottom: 2rem;
@@ -128,18 +141,25 @@
             transition: transform 0.2s, background-color 0.2s;
             box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.25);
         }
+
         .nav-button:hover {
             transform: translateY(-2px);
             background-color: var(--accent-orange-dark);
         }
+
         .nav-button:disabled {
             background-color: var(--text-secondary);
             cursor: not-allowed;
             transform: none;
         }
 
-        #prev-btn { left: 2rem; }
-        #next-btn { right: 2rem; }
+        #prev-btn {
+            left: 2rem;
+        }
+
+        #next-btn {
+            right: 2rem;
+        }
 
         #slide-counter {
             position: fixed;
@@ -153,7 +173,7 @@
             border-radius: 0.5rem;
             font-size: 0.9rem;
         }
-        
+
         #logo {
             position: fixed;
             top: 2rem;
@@ -170,7 +190,7 @@
             white-space: pre-wrap;
             font-size: 0.9em;
         }
-        
+
         .flow-diagram-node {
             background-color: var(--border-color);
             color: white;
@@ -179,109 +199,159 @@
             text-align: center;
             transition: all 0.3s ease;
         }
+
         .flow-diagram-arrow {
             font-size: 2rem;
             color: var(--accent-orange);
         }
-        
     </style>
 </head>
+
 <body>
 
-    <img id="logo" src="https://ikameglobal.com/assets/logo-footer-BOBsm_CZ.png" alt="Logo iKame" class="h-10">
+    <img id="logo" src="https://ikameglobal.com/assets/logo-footer-BOBsm_CZ.png" alt="Logo iKame" class="h-12">
 
     <main id="presentation-container">
         <!-- Slide 1: Tiêu đề -->
         <section class="slide" id="slide-1">
-            <div class="slide-content text-center">
-                <h1 class="text-6xl font-black text-white leading-tight animated-item">TỪ <span class="text-[var(--accent-orange)]">PROMPT ENGINEERING</span><br>ĐẾN AI AGENT TỰ CHỦ</h1>
-                <p class="text-2xl text-gray-300 mt-4 animated-item" style="animation-delay: 0.2s;">Làm chủ thế hệ Trí tuệ Nhân tạo tiếp theo</p>
-                <div class="mt-12 border-t border-[var(--border-color)] pt-6 animated-item" style="animation-delay: 0.4s;">
-                    <p class="text-xl text-white">Diễn giả: [Tên của bạn]</p>
-                    <p class="text-lg text-[var(--text-secondary)]">[Chức vụ/Công ty]</p>
+            <div class="slide-content">
+                <div class="flex items-center justify-center gap-12 w-full">
+                    <div class="text-left">
+                        <h1 class="text-6xl font-black text-white leading-tight animated-item">TỪ <span
+                                class="text-[var(--accent-orange)]">PROMPT ENGINEERING</span><br>ĐẾN AI AGENT TỰ CHỦ
+                        </h1>
+                        <p class="text-2xl text-gray-300 mt-4 animated-item">Làm chủ thế hệ Trí tuệ Nhân tạo tiếp theo
+                        </p>
+                    </div>
+                    <div class="animated-item shrink-0">
+                        <img src="meme.jpg"
+                            alt="Meme" class="rounded-lg shadow-lg w-72">
+                    </div>
+                </div>
+                <div class="mt-16 border-t border-[var(--border-color)] pt-8 animated-item text-center w-full">
+                    <p class="text-2xl text-white">NamNV</p>
+                    <p class="text-2lg text-[var(--text-secondary)]">Android Developer</p>
                 </div>
             </div>
         </section>
 
-        <!-- Slide 2: Ôn tập -->
+        <!-- Slide 2: Lộ trình -->
         <section class="slide" id="slide-2">
             <div class="slide-content">
-                <h2 class="slide-title">Cùng khởi động nào!</h2>
-                <p class="slide-subtitle">Ôn tập nhanh – Kiểm tra kiến thức cũ</p>
+                <h2 class="slide-title animated-item">Lộ trình:</h2>
+                <ol class="list-decimal list-inside space-y-5 text-2xl mt-8 pl-6">
+                    <li class="animated-item">
+                        <strong>Nền tảng & Ôn tập:</strong> Từ AI, ML đến LLM và Prompt Engineering.
+                    </li>
+                    <li class="animated-item">
+                        <strong>Kỹ thuật Prompt Nâng cao:</strong> Khám phá Chain-of-Thought và RAG để tối ưu hóa kết
+                        quả.
+                    </li>
+                    <li class="animated-item">
+                        <strong>Kỷ nguyên AI Agent:</strong> Định nghĩa, giải phẫu một Agent và so sánh với Chatbot.
+                    </li>
+                    <li class="animated-item">
+                        <strong>Tương lai & Công cụ:</strong> Giao thức MCP, Case Study và các AI Tools nên dùng.
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Slide 3: Ôn tập -->
+        <section class="slide" id="slide-3">
+            <div class="slide-content">
+                <h2 class="slide-title animated-item">Cùng khởi động nào!</h2>
+                <p class="slide-subtitle animated-item">Ôn tập nhanh – Kiểm tra kiến thức cũ</p>
                 <div class="space-y-4">
-                    <div class="p-4 rounded-lg interactive-question" onclick="toggleAnswer(this)">
-                        <h3 class="text-xl font-semibold text-white">Câu hỏi 1: LLM là gì và khác gì AI truyền thống?</h3>
+                    <div class="p-4 rounded-lg interactive-question animated-item" onclick="toggleAnswer(this)">
+                        <h3 class="text-xl font-semibold text-white">Câu hỏi 1: LLM là gì và khác gì AI truyền thống?
+                        </h3>
                         <div class="answer mt-3 p-3 rounded">
-                            <p><strong>LLM (Large Language Model)</strong> là một mạng nơ-ron được huấn luyện trên lượng dữ liệu văn bản khổng lồ để hiểu và tạo ra ngôn ngữ. Khác với <strong>AI truyền thống</strong> (thường dựa trên luật lệ hoặc dữ liệu có cấu trúc), LLM có khả năng xử lý các nhiệm vụ ngôn ngữ phức tạp, mơ hồ và mang tính sáng tạo.</p>
+                            <p><strong>LLM (Large Language Model)</strong> là một mạng nơ-ron được huấn luyện trên lượng
+                                dữ liệu văn bản khổng lồ để hiểu và tạo ra ngôn ngữ. Khác với <strong>AI truyền
+                                    thống</strong> (thường dựa trên luật lệ hoặc dữ liệu có cấu trúc), LLM có khả năng
+                                xử lý các nhiệm vụ ngôn ngữ phức tạp, mơ hồ và mang tính sáng tạo.</p>
                         </div>
                     </div>
-                    <div class="p-4 rounded-lg interactive-question" onclick="toggleAnswer(this)">
+                    <div class="p-4 rounded-lg interactive-question animated-item" onclick="toggleAnswer(this)">
                         <h3 class="text-xl font-semibold text-white">Câu hỏi 2: Prompt engineering là gì?</h3>
                         <div class="answer mt-3 p-3 rounded">
-                            <p><strong>Prompt Engineering</strong> là nghệ thuật và khoa học của việc thiết kế các chỉ dẫn (prompt) đầu vào hiệu quả để hướng dẫn và tối ưu hóa kết quả đầu ra của một mô hình AI, đặc biệt là LLM.</p>
+                            <p><strong>Prompt Engineering</strong> là nghệ thuật và khoa học của việc thiết kế các chỉ
+                                dẫn (prompt) đầu vào hiệu quả để hướng dẫn và tối ưu hóa kết quả đầu ra của một mô hình
+                                AI, đặc biệt là LLM.</p>
                         </div>
                     </div>
-                    <div class="p-4 rounded-lg interactive-question" onclick="toggleAnswer(this)">
-                        <h3 class="text-xl font-semibold text-white">Câu hỏi 3: AI Chatbot và AI Agent khác nhau ở điểm nào?</h3>
+                    <div class="p-4 rounded-lg interactive-question animated-item" onclick="toggleAnswer(this)">
+                        <h3 class="text-xl font-semibold text-white">Câu hỏi 3: AI Chatbot và AI Agent khác nhau ở điểm
+                            nào?</h3>
                         <div class="answer mt-3 p-3 rounded">
-                            <p><strong>AI Chatbot</strong> chủ yếu mang tính <strong>phản hồi</strong> (reacts) - nó trả lời câu hỏi của bạn. <strong>AI Agent</strong> thì <strong>chủ động</strong> (acts) - nó có thể tự lên kế hoạch và thực hiện một chuỗi hành động (sử dụng công cụ) để đạt được một mục tiêu bạn đề ra.</p>
+                            <p><strong>AI Chatbot</strong> chủ yếu mang tính <strong>phản hồi</strong> (reacts) - nó trả
+                                lời câu hỏi của bạn. <strong>AI Agent</strong> thì <strong>chủ động</strong> (acts) - nó
+                                có thể tự lên kế hoạch và thực hiện một chuỗi hành động (sử dụng công cụ) để đạt được
+                                một mục tiêu bạn đề ra.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Slide 3: Bối cảnh -->
-        <section class="slide" id="slide-3">
+        <!-- Slide 4: Bối cảnh -->
+        <section class="slide" id="slide-4">
             <div class="slide-content">
-                <h2 class="slide-title">Bối cảnh: AI, Machine Learning & Generative AI</h2>
-                <p class="slide-subtitle">Mối quan hệ phân cấp</p>
+                <h2 class="slide-title animated-item">Bối cảnh: AI, Machine Learning & Generative AI</h2>
+                <p class="slide-subtitle animated-item">Mối quan hệ phân cấp</p>
                 <div id="venn-diagram" class="d3-container h-96 flex justify-center items-center"></div>
             </div>
         </section>
 
-        <!-- Slide 4: Giải mã LLM -->
-        <section class="slide" id="slide-4">
-            <div class="slide-content">
-                <h2 class="slide-title">Giải mã LLM</h2>
-                <p class="slide-subtitle">Mô hình Ngôn ngữ Lớn hoạt động như thế nào?</p>
-                <div id="llm-flow" class="flex items-center justify-around p-8 space-x-4">
-                    <div class="flow-diagram-node animated-item">Input (Prompt)</div>
-                    <div class="flow-diagram-arrow animated-item" style="animation-delay: 0.2s;">&rarr;</div>
-                    <div class="flow-diagram-node animated-item" style="animation-delay: 0.4s;">Tokenization</div>
-                    <div class="flow-diagram-arrow animated-item" style="animation-delay: 0.6s;">&rarr;</div>
-                    <div class="flow-diagram-node animated-item" style="animation-delay: 0.8s;">Processing (Transformer)</div>
-                    <div class="flow-diagram-arrow animated-item" style="animation-delay: 1.0s;">&rarr;</div>
-                    <div class="flow-diagram-node animated-item" style="animation-delay: 1.2s;">Output</div>
-                </div>
-                <ul class="list-disc list-inside mt-8 space-y-2 text-lg">
-                    <li><strong>Bản chất:</strong> LLM là một mạng nơ-ron khổng lồ được huấn luyện để dự đoán từ tiếp theo trong một chuỗi.</li>
-                    <li><strong>Kiến trúc Transformer:</strong> "Attention Mechanism" giúp mô hình tập trung vào các phần quan trọng của văn bản đầu vào.</li>
-                    <li><strong>Quá trình:</strong> Input -> Bẻ nhỏ (Tokenization) -> Xử lý qua nhiều lớp mạng -> Output.</li>
-                </ul>
-            </div>
-        </section>
-        
-        <!-- Slide 5: Prompt -->
+        <!-- Slide 5: Giải mã LLM -->
         <section class="slide" id="slide-5">
             <div class="slide-content">
-                <h2 class="slide-title">Prompt - Chìa khóa giao tiếp với LLM</h2>
-                <p class="slide-subtitle">"Garbage in, garbage out."</p>
-                 <ul class="list-disc list-inside mt-8 space-y-4 text-xl">
-                    <li class="animated-item"><strong>Định nghĩa:</strong> Prompt không chỉ là câu hỏi, mà là chỉ dẫn, bối cảnh, và yêu cầu định dạng bạn cung cấp cho mô hình.</li>
-                    <li class="animated-item" style="animation-delay: 0.2s;"><strong>Tầm quan trọng:</strong> Chất lượng đầu ra (output) phụ thuộc trực tiếp vào chất lượng đầu vào (prompt).</li>
-                    <li class="animated-item" style="animation-delay: 0.4s;"><strong>Prompt Engineering:</strong> Là nghệ thuật và khoa học của việc thiết kế prompt hiệu quả để tối ưu hóa hiệu suất của LLM.</li>
+                <h2 class="slide-title animated-item">Giải mã LLM</h2>
+                <p class="slide-subtitle animated-item">Mô hình Ngôn ngữ Lớn hoạt động như thế nào?</p>
+                <div id="llm-flow" class="flex items-center justify-around p-8 space-x-4">
+                    <div class="flow-diagram-node animated-item">Input (Prompt)</div>
+                    <div class="flow-diagram-arrow animated-item">&rarr;</div>
+                    <div class="flow-diagram-node animated-item">Tokenization</div>
+                    <div class="flow-diagram-arrow animated-item">&rarr;</div>
+                    <div class="flow-diagram-node animated-item">Processing (Transformer)</div>
+                    <div class="flow-diagram-arrow animated-item">&rarr;</div>
+                    <div class="flow-diagram-node animated-item">Output</div>
+                </div>
+                <ul class="list-disc list-inside mt-8 space-y-2 text-lg">
+                    <li class="animated-item"><strong>Bản chất:</strong> LLM là một mạng nơ-ron khổng lồ được huấn luyện
+                        để dự đoán từ tiếp theo trong một chuỗi.</li>
+                    <li class="animated-item"><strong>Kiến trúc Transformer:</strong> "Attention Mechanism" giúp mô hình
+                        tập trung vào các phần quan trọng của văn bản đầu vào.</li>
+                    <li class="animated-item"><strong>Quá trình:</strong> Input -> Bẻ nhỏ (Tokenization) -> Xử lý qua
+                        nhiều lớp mạng -> Output.</li>
                 </ul>
             </div>
         </section>
 
-        <!-- Slide 6: Hallucination -->
+        <!-- Slide 6: Prompt -->
         <section class="slide" id="slide-6">
             <div class="slide-content">
-                <h2 class="slide-title text-red-400">Thách thức lớn nhất: "Ảo giác" (Hallucination)</h2>
-                <p class="slide-subtitle">Khi AI "bịa" ra thông tin một cách tự tin.</p>
+                <h2 class="slide-title animated-item">Prompt - Chìa khóa giao tiếp với LLM</h2>
+                <p class="slide-subtitle animated-item">"Garbage in, garbage out."</p>
+                <ul class="list-disc list-inside mt-8 space-y-4 text-xl">
+                    <li class="animated-item"><strong>Định nghĩa:</strong> Prompt không chỉ là câu hỏi, mà là chỉ dẫn,
+                        bối cảnh, và yêu cầu định dạng bạn cung cấp cho mô hình.</li>
+                    <li class="animated-item"><strong>Tầm quan trọng:</strong> Chất lượng đầu ra (output) phụ thuộc trực
+                        tiếp vào chất lượng đầu vào (prompt).</li>
+                    <li class="animated-item"><strong>Prompt Engineering:</strong> Là nghệ thuật và khoa học của việc
+                        thiết kế prompt hiệu quả để tối ưu hóa hiệu suất của LLM.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Slide 7: Hallucination -->
+        <section class="slide" id="slide-7">
+            <div class="slide-content">
+                <h2 class="slide-title text-red-400 animated-item">Thách thức lớn nhất: "Ảo giác" (Hallucination)</h2>
+                <p class="slide-subtitle animated-item">Khi AI "bịa" ra thông tin một cách tự tin.</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-lg">
-                    <div>
+                    <div class="animated-item">
                         <h3 class="font-bold text-white text-xl mb-2">Định nghĩa & Nguyên nhân</h3>
                         <ul class="list-disc list-inside space-y-2">
                             <li>Hiện tượng LLM tạo ra thông tin nghe hợp lý nhưng hoàn toàn sai sự thật.</li>
@@ -289,7 +359,7 @@
                             <li>Lỗ hổng trong dữ liệu huấn luyện.</li>
                         </ul>
                     </div>
-                    <div>
+                    <div class="animated-item">
                         <h3 class="font-bold text-white text-xl mb-2">Ví dụ nguy hiểm</h3>
                         <ul class="list-disc list-inside space-y-2">
                             <li>Trích dẫn một nghiên cứu khoa học không tồn tại.</li>
@@ -301,33 +371,39 @@
             </div>
         </section>
 
-        <!-- Slide 7: Nguyên tắc Vàng -->
-        <section class="slide" id="slide-7">
+        <!-- Slide 8: Nguyên tắc Vàng -->
+        <section class="slide" id="slide-8">
             <div class="slide-content">
-                <h2 class="slide-title">Nguyên tắc Vàng: Cung cấp Prompt Rõ ràng</h2>
-                <p class="slide-subtitle">Công thức C.O.R.E</p>
+                <h2 class="slide-title animated-item">Nguyên tắc Vàng: Cung cấp Prompt Rõ ràng</h2>
+                <p class="slide-subtitle animated-item">Công thức C.O.R.E</p>
                 <div class="space-y-4">
-                    <p class="text-xl"><strong class="text-[var(--accent-orange)]">C</strong> - <span class="font-bold">Context (Bối cảnh):</span> Cung cấp thông tin nền cần thiết.</p>
-                    <p class="text-xl"><strong class="text-[var(--accent-orange)]">O</strong> - <span class="font-bold">Objective (Mục tiêu):</span> Nêu rõ nhiệm vụ cần thực hiện.</p>
-                    <p class="text-xl"><strong class="text-[var(--accent-orange)]">R</strong> - <span class="font-bold">Role (Vai trò):</span> Chỉ định vai trò cho LLM (ví dụ: "Bạn là một chuyên gia marketing").</p>
-                    <p class="text-xl"><strong class="text-[var(--accent-orange)]">E</strong> - <span class="font-bold">Expectations (Kỳ vọng):</span> Mô tả định dạng đầu ra mong muốn (bảng, JSON).</p>
+                    <p class="text-xl animated-item"><strong class="text-[var(--accent-orange)]">C</strong> - <span
+                            class="font-bold">Context (Bối cảnh):</span> Cung cấp thông tin nền cần thiết.</p>
+                    <p class="text-xl animated-item"><strong class="text-[var(--accent-orange)]">O</strong> - <span
+                            class="font-bold">Objective (Mục tiêu):</span> Nêu rõ nhiệm vụ cần thực hiện.</p>
+                    <p class="text-xl animated-item"><strong class="text-[var(--accent-orange)]">R</strong> - <span
+                            class="font-bold">Role (Vai trò):</span> Chỉ định vai trò cho LLM (ví dụ: "Bạn là một chuyên
+                        gia marketing").</p>
+                    <p class="text-xl animated-item"><strong class="text-[var(--accent-orange)]">E</strong> - <span
+                            class="font-bold">Expectations (Kỳ vọng):</span> Mô tả định dạng đầu ra mong muốn (bảng,
+                        JSON).</p>
                 </div>
             </div>
         </section>
 
-        <!-- Slide 8: Zero-shot vs Few-shot -->
-        <section class="slide" id="slide-8">
+        <!-- Slide 9: Zero-shot vs Few-shot -->
+        <section class="slide" id="slide-9">
             <div class="slide-content">
-                <h2 class="slide-title">Kỹ thuật cơ bản: Zero-shot vs. Few-shot</h2>
+                <h2 class="slide-title animated-item">Kỹ thuật cơ bản: Zero-shot vs. Few-shot</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-                    <div>
+                    <div class="animated-item">
                         <h3 class="text-2xl font-bold text-white mb-2">Zero-shot Prompting</h3>
                         <p class="mb-4">Ra lệnh trực tiếp không cần ví dụ.</p>
                         <div class="code-block">
                             Phân loại câu sau là tích cực, tiêu cực hay trung tính: <br>'Sản phẩm này thật tuyệt vời!'
                         </div>
                     </div>
-                    <div>
+                    <div class="animated-item">
                         <h3 class="text-2xl font-bold text-white mb-2">Few-shot Prompting</h3>
                         <p class="mb-4">Cung cấp một vài ví dụ mẫu.</p>
                         <div class="code-block">
@@ -340,14 +416,18 @@
             </div>
         </section>
 
-        <!-- Slide 9: Chain-of-Thought -->
-        <section class="slide" id="slide-9">
+        <!-- Slide 10: Chain-of-Thought -->
+        <section class="slide" id="slide-10">
             <div class="slide-content">
-                 <h2 class="slide-title">Kỹ thuật Nâng cao 1: Chain-of-Thought (CoT)</h2>
-                <p class="slide-subtitle">Hướng dẫn LLM suy nghĩ từng bước.</p>
-                <p class="text-lg mb-4">Thêm cụm từ như <strong class="text-[var(--accent-orange)]">"Hãy suy nghĩ từng bước một."</strong> vào prompt để cải thiện khả năng lập luận cho các bài toán phức tạp.</p>
-                <div class="bg-[#21262d] p-4 rounded-lg">
-                    <p class="font-mono text-white">"Một rổ có 5 quả táo. Bạn lấy đi 2 quả. Sau đó bạn của bạn cho bạn thêm 3 quả. <strong class="text-[var(--accent-orange)]">Hãy suy nghĩ từng bước một</strong> và cho biết trong rổ có bao nhiêu quả?"</p>
+                <h2 class="slide-title animated-item">Kỹ thuật Nâng cao 1: Chain-of-Thought (CoT)</h2>
+                <p class="slide-subtitle animated-item">Hướng dẫn LLM suy nghĩ từng bước.</p>
+                <p class="text-lg mb-4 animated-item">Thêm cụm từ như <strong class="text-[var(--accent-orange)]">"Hãy
+                        suy nghĩ từng bước một."</strong> vào prompt để cải thiện khả năng lập luận cho các bài toán
+                    phức tạp.</p>
+                <div class="bg-[#21262d] p-4 rounded-lg animated-item">
+                    <p class="font-mono text-white">"Một rổ có 5 quả táo. Bạn lấy đi 2 quả. Sau đó bạn của bạn cho bạn
+                        thêm 3 quả. <strong class="text-[var(--accent-orange)]">Hãy suy nghĩ từng bước một</strong> và
+                        cho biết trong rổ có bao nhiêu quả?"</p>
                     <div class="mt-4 pt-4 border-t border-[var(--border-color)] text-[var(--text-secondary)]">
                         <p>1. Ban đầu có 5 quả.</p>
                         <p>2. Lấy đi 2 quả, còn lại 5 - 2 = 3 quả.</p>
@@ -357,260 +437,341 @@
                 </div>
             </div>
         </section>
-        
-        <!-- Slide 10: RAG -->
-        <section class="slide" id="slide-10">
-            <div class="slide-content">
-                <h2 class="slide-title">Kỹ thuật Nâng cao 2: Retrieval-Augmented Generation (RAG)</h2>
-                <p class="slide-subtitle">Kết hợp LLM với nguồn kiến thức bên ngoài.</p>
-                 <div id="rag-flow" class="flex flex-col md:flex-row items-center justify-around p-4 space-y-4 md:space-y-0 md:space-x-4">
-                    <div class="flow-diagram-node">1. User Prompt</div>
-                    <div class="flow-diagram-arrow">&darr;</div>
-                    <div class="flow-diagram-node">2. Tìm kiếm trong<br>Database / Tài liệu</div>
-                    <div class="flow-diagram-arrow">&darr;</div>
-                    <div class="flow-diagram-node">3. Nhồi thông tin<br>vào Prompt</div>
-                    <div class="flow-diagram-arrow">&darr;</div>
-                    <div class="flow-diagram-node bg-[var(--accent-orange)] text-black font-bold">4. LLM tạo câu trả lời<br>chính xác hơn</div>
-                </div>
-                <p class="text-xl text-center mt-6 font-semibold">Lợi ích: Giảm "ảo giác", cho phép AI trả lời dựa trên dữ liệu mới nhất hoặc độc quyền.</p>
-            </div>
-        </section>
 
-        <!-- Slide 11: Mẹo & Thủ thuật khác -->
+        <!-- Slide 11: RAG -->
         <section class="slide" id="slide-11">
             <div class="slide-content">
-                <h2 class="slide-title">Mẹo & Thủ thuật khác</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 text-lg">
-                    <div class="bg-[#21262d] p-4 rounded-lg">
-                        <h3 class="font-bold text-white text-xl mb-2">Self-Consistency</h3>
-                        <p>Yêu cầu mô hình trả lời cùng một câu hỏi nhiều lần và chọn câu trả lời phổ biến nhất để tăng độ tin cậy.</p>
-                    </div>
-                    <div class="bg-[#21262d] p-4 rounded-lg">
-                        <h3 class="font-bold text-white text-xl mb-2">Điều chỉnh Tham số</h3>
-                        <p><strong>Temperature:</strong> Tăng để sáng tạo, giảm để an toàn.<br><strong>Top_p:</strong> Kiểm soát sự đa dạng của từ được chọn.</p>
-                    </div>
-                    <div class="bg-[#21262d] p-4 rounded-lg col-span-1 md:col-span-2">
-                         <h3 class="font-bold text-white text-xl mb-2">Prompt "phòng thủ"</h3>
-                        <p>Thêm chỉ dẫn: <i class="text-[var(--accent-orange)]">"Nếu không chắc chắn, hãy trả lời 'Tôi không biết'."</i> để tránh bịa đặt.</p>
-                    </div>
+                <h2 class="slide-title animated-item">Kỹ thuật Nâng cao 2: Retrieval-Augmented Generation (RAG)</h2>
+                <p class="slide-subtitle animated-item">Kết hợp LLM với nguồn kiến thức bên ngoài.</p>
+                <div id="rag-flow"
+                    class="flex flex-col md:flex-row items-center justify-around p-4 space-y-4 md:space-y-0 md:space-x-4">
+                    <div class="flow-diagram-node animated-item">1. User Prompt</div>
+                    <div class="flow-diagram-arrow animated-item">&darr;</div>
+                    <div class="flow-diagram-node animated-item">2. Tìm kiếm trong<br>Database / Tài liệu</div>
+                    <div class="flow-diagram-arrow animated-item">&darr;</div>
+                    <div class="flow-diagram-node animated-item">3. Nhồi thông tin<br>vào Prompt</div>
+                    <div class="flow-diagram-arrow animated-item">&darr;</div>
+                    <div class="flow-diagram-node bg-[var(--accent-orange)] text-black font-bold animated-item">4. LLM
+                        tạo câu trả lời<br>chính xác hơn</div>
                 </div>
+                <p class="text-xl text-center mt-6 font-semibold animated-item">Lợi ích: Giảm "ảo giác", cho phép AI trả
+                    lời dựa trên dữ liệu mới nhất hoặc độc quyền.</p>
             </div>
         </section>
 
-        <!-- Slide 12: Kỷ nguyên Agent -->
+        <!-- Slide 12: Mẹo & Thủ thuật khác -->
         <section class="slide" id="slide-12">
-            <div class="slide-content text-center">
-                <h2 class="slide-title">Kỷ nguyên của Tác nhân tự chủ (The Agentic Age)</h2>
-                <div class="flex items-center justify-center mt-8 text-3xl font-bold">
-                    <div class="p-8 rounded-lg bg-[#21262d]">AI là một công cụ<br>(Tool)</div>
-                    <div class="text-5xl mx-8 text-[var(--accent-orange)]">&rarr;</div>
-                    <div class="p-8 rounded-lg bg-[var(--accent-orange)] text-black">AI là một tác nhân<br>(Agent)</div>
-                </div>
-                <p class="mt-8 text-xl">Sự dịch chuyển từ AI <strong class="text-yellow-400">thụ động</strong>, chỉ thực thi khi có lệnh, sang AI <strong class="text-orange-400">chủ động</strong>, có khả năng tự suy luận, lập kế hoạch và hành động.</p>
-            </div>
-        </section>
-        
-        <!-- Slide 13: Giải phẫu AI Agent -->
-        <section class="slide" id="slide-13">
             <div class="slide-content">
-                <h2 class="slide-title">Giải phẫu một AI Agent</h2>
-                <div class="h-96 relative mt-8 p-8 flex justify-center items-center">
-                    <div class="absolute w-64 h-64 rounded-full bg-[var(--accent-orange)] opacity-20 animate-ping"></div>
-                    <div class="relative w-48 h-48 bg-[var(--accent-orange)] rounded-full flex justify-center items-center text-black font-black text-3xl z-10">Brain (LLM)</div>
-
-                    <div class="absolute z-10 p-4 bg-[#21262d] rounded-lg shadow-lg" style="top: -20px; left: 50%; transform: translateX(-50%);"><strong>Planning</strong><br>Chia nhỏ mục tiêu</div>
-                    <div class="absolute z-10 p-4 bg-[#21262d] rounded-lg shadow-lg" style="bottom: -20px; left: 50%; transform: translateX(-50%);"><strong>Execution</strong><br>Thực thi kế hoạch</div>
-                    <div class="absolute z-10 p-4 bg-[#21262d] rounded-lg shadow-lg" style="left: 0; top: 50%; transform: translateY(-50%);"><strong>Memory</strong><br>Ngắn hạn & Dài hạn</div>
-                    <div class="absolute z-10 p-4 bg-[#21262d] rounded-lg shadow-lg" style="right: 0; top: 50%; transform: translateY(-50%);"><strong>Tools (APIs)</strong><br>Hành động</div>
+                <h2 class="slide-title animated-item">Mẹo & Thủ thuật khác</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 text-lg">
+                    <div class="bg-[#21262d] p-4 rounded-lg animated-item">
+                        <h3 class="font-bold text-white text-xl mb-2">Self-Consistency</h3>
+                        <p>Yêu cầu mô hình trả lời cùng một câu hỏi nhiều lần và chọn câu trả lời phổ biến nhất để tăng
+                            độ tin cậy.</p>
+                    </div>
+                    <div class="bg-[#21262d] p-4 rounded-lg animated-item">
+                        <h3 class="font-bold text-white text-xl mb-2">Điều chỉnh Tham số</h3>
+                        <p><strong>Temperature:</strong> Tăng để sáng tạo, giảm để an toàn.<br><strong>Top_p:</strong>
+                            Kiểm soát sự đa dạng của từ được chọn.</p>
+                    </div>
+                    <div class="bg-[#21262d] p-4 rounded-lg col-span-1 md:col-span-2 animated-item">
+                        <h3 class="font-bold text-white text-xl mb-2">Prompt "phòng thủ"</h3>
+                        <p>Thêm chỉ dẫn: <i class="text-[var(--accent-orange)]">"Nếu không chắc chắn, hãy trả lời 'Tôi
+                                không biết'."</i> để tránh bịa đặt.</p>
+                    </div>
                 </div>
             </div>
         </section>
-        
-        <!-- Slide 14: Chatbot vs Agent -->
+
+        <!-- Slide 13: Kỷ nguyên Agent -->
+        <section class="slide" id="slide-13">
+            <div class="slide-content text-center">
+                <h2 class="slide-title animated-item">Kỷ nguyên của Tác nhân tự chủ (The Agentic Age)</h2>
+                <div class="flex items-center justify-center mt-8 text-3xl font-bold">
+                    <div class="p-8 rounded-lg bg-[#21262d] animated-item">AI là một công cụ<br>(Tool)</div>
+                    <div class="text-5xl mx-8 text-[var(--accent-orange)] animated-item">&rarr;</div>
+                    <div class="p-8 rounded-lg bg-[var(--accent-orange)] text-black animated-item">AI là một tác
+                        nhân<br>(Agent)</div>
+                </div>
+                <p class="mt-8 text-xl animated-item">Sự dịch chuyển từ AI <strong class="text-yellow-400">thụ
+                        động</strong>, chỉ thực thi khi có lệnh, sang AI <strong class="text-orange-400">chủ
+                        động</strong>, có khả năng tự suy luận, lập kế hoạch và hành động.</p>
+            </div>
+        </section>
+
+        <!-- Slide 14: Giải phẫu AI Agent -->
         <section class="slide" id="slide-14">
             <div class="slide-content">
-                <h2 class="slide-title">So sánh trực quan: Chatbot vs. AI Agent</h2>
+                <h2 class="slide-title animated-item">Giải phẫu một AI Agent</h2>
+                <div class="h-96 relative mt-8 p-8 flex justify-center items-center">
+                    <div class="absolute w-64 h-64 rounded-full bg-[var(--accent-orange)] opacity-20 animate-ping">
+                    </div>
+                    <div
+                        class="relative w-48 h-48 bg-[var(--accent-orange)] rounded-full flex justify-center items-center text-black font-black text-3xl z-10 animated-item">
+                        Brain (LLM)</div>
+
+                    <div class="absolute z-10 p-4 bg-[#21262d] rounded-lg shadow-lg animated-item"
+                        style="top: -20px; left: 50%; transform: translateX(-50%);"><strong>Planning</strong><br>Chia
+                        nhỏ mục tiêu</div>
+                    <div class="absolute z-10 p-4 bg-[#21262d] rounded-lg shadow-lg animated-item"
+                        style="bottom: -20px; left: 50%; transform: translateX(-50%);">
+                        <strong>Execution</strong><br>Thực thi kế hoạch
+                    </div>
+                    <div class="absolute z-10 p-4 bg-[#21262d] rounded-lg shadow-lg animated-item"
+                        style="left: 0; top: 50%; transform: translateY(-50%);"><strong>Memory</strong><br>Ngắn hạn &
+                        Dài hạn</div>
+                    <div class="absolute z-10 p-4 bg-[#21262d] rounded-lg shadow-lg animated-item"
+                        style="right: 0; top: 50%; transform: translateY(-50%);"><strong>Tools (APIs)</strong><br>Hành
+                        động</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 15: Chatbot vs Agent -->
+        <section class="slide" id="slide-15">
+            <div class="slide-content">
+                <h2 class="slide-title animated-item">So sánh trực quan: Chatbot vs. AI Agent</h2>
                 <div class="overflow-x-auto mt-6">
                     <table class="w-full text-left border-collapse">
-                        <thead>
+                        <thead class="animated-item">
                             <tr class="bg-[#21262d]">
                                 <th class="p-4 border border-[var(--border-color)] font-bold text-white">Tiêu chí</th>
                                 <th class="p-4 border border-[var(--border-color)] font-bold text-white">AI Chatbot</th>
-                                <th class="p-4 border border-[var(--border-color)] font-bold text-[var(--accent-orange)]">AI Agent</th>
+                                <th
+                                    class="p-4 border border-[var(--border-color)] font-bold text-[var(--accent-orange)]">
+                                    AI Agent</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="border-b border-[var(--border-color)]">
+                            <tr class="border-b border-[var(--border-color)] animated-item">
                                 <td class="p-4 border border-[var(--border-color)] font-semibold">Bản chất</td>
                                 <td class="p-4 border border-[var(--border-color)]">Thụ động, Phản hồi (Reacts)</td>
                                 <td class="p-4 border border-[var(--border-color)]">Chủ động, Hành động (Acts)</td>
                             </tr>
-                            <tr class="border-b border-[var(--border-color)]">
+                            <tr class="border-b border-[var(--border-color)] animated-item">
                                 <td class="p-4 border border-[var(--border-color)] font-semibold">Phạm vi</td>
                                 <td class="p-4 border border-[var(--border-color)]">Một lượt hỏi - đáp</td>
                                 <td class="p-4 border border-[var(--border-color)]">Chuỗi tác vụ phức tạp</td>
                             </tr>
-                            <tr class="border-b border-[var(--border-color)]">
+                            <tr class="border-b border-[var(--border-color)] animated-item">
                                 <td class="p-4 border border-[var(--border-color)] font-semibold">Công cụ</td>
                                 <td class="p-4 border border-[var(--border-color)]">Thường không có</td>
-                                <td class="p-4 border border-[var(--border-color)]">Sử dụng nhiều công cụ (API, web)</td>
+                                <td class="p-4 border border-[var(--border-color)]">Sử dụng nhiều công cụ (API, web)
+                                </td>
                             </tr>
-                             <tr class="border-b border-[var(--border-color)]">
+                            <tr class="border-b border-[var(--border-color)] animated-item">
                                 <td class="p-4 border border-[var(--border-color)] font-semibold">Bộ nhớ</td>
                                 <td class="p-4 border border-[var(--border-color)]">Hạn chế (chỉ trong phiên)</td>
                                 <td class="p-4 border border-[var(--border-color)]">Có bộ nhớ dài hạn</td>
                             </tr>
-                            <tr class="border-b border-[var(--border-color)]">
+                            <tr class="border-b border-[var(--border-color)] animated-item">
                                 <td class="p-4 border border-[var(--border-color)] font-semibold">Ví dụ</td>
                                 <td class="p-4 border border-[var(--border-color)]">"Thủ đô của Pháp là gì?"</td>
-                                <td class="p-4 border border-[var(--border-color)]">"Đặt cho tôi một chuyến bay đến Paris vào thứ 6 tuần sau."</td>
+                                <td class="p-4 border border-[var(--border-color)]">"Đặt cho tôi một chuyến bay đến
+                                    Paris vào thứ 6 tuần sau."</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </section>
-        
-        <!-- Slide 15: 5 Cấp độ AI Agent -->
-        <section class="slide" id="slide-15">
+
+        <!-- Slide 16: 5 Cấp độ AI Agent -->
+        <section class="slide" id="slide-16">
             <div class="slide-content">
-                <h2 class="slide-title">5 Cấp độ của AI Agent</h2>
+                <h2 class="slide-title animated-item">5 Cấp độ của AI Agent</h2>
                 <div class="mt-6 space-y-3">
-                    <div class="p-3 bg-[#21262d] rounded-lg animated-item"><strong>Cấp 1: Simple Reflex Agent</strong> - Phản ứng theo luật định sẵn (Bộ lọc spam).</div>
-                    <div class="p-3 bg-[#21262d] rounded-lg animated-item" style="animation-delay: 0.1s;"><strong>Cấp 2: Model-based Agent</strong> - Có mô hình về trạng thái thế giới (Robot hút bụi).</div>
-                    <div class="p-3 bg-[#21262d] rounded-lg animated-item" style="animation-delay: 0.2s;"><strong>Cấp 3: Goal-based Agent</strong> - Lên kế hoạch để đạt mục tiêu (GPS tìm đường).</div>
-                    <div class="p-3 bg-[#21262d] rounded-lg animated-item" style="animation-delay: 0.3s;"><strong>Cấp 4: Utility-based Agent</strong> - Tối ưu hóa "lợi ích" (Agent đặt vé máy bay).</div>
-                    <div class="p-3 bg-[var(--accent-orange)] text-black font-bold rounded-lg animated-item" style="animation-delay: 0.4s;"><strong>Cấp 5: Learning Agent</strong> - Tự học hỏi để cải thiện (AI chơi cờ).</div>
+                    <div class="p-3 bg-[#21262d] rounded-lg animated-item"><strong>Cấp 1: Simple Reflex Agent</strong> -
+                        Phản ứng theo luật định sẵn (Bộ lọc spam).</div>
+                    <div class="p-3 bg-[#21262d] rounded-lg animated-item"><strong>Cấp 2: Model-based Agent</strong> -
+                        Có mô hình về trạng thái thế giới (Robot hút bụi).</div>
+                    <div class="p-3 bg-[#21262d] rounded-lg animated-item"><strong>Cấp 3: Goal-based Agent</strong> -
+                        Lên kế hoạch để đạt mục tiêu (GPS tìm đường).</div>
+                    <div class="p-3 bg-[#21262d] rounded-lg animated-item"><strong>Cấp 4: Utility-based Agent</strong> -
+                        Tối ưu hóa "lợi ích" (Agent đặt vé máy bay).</div>
+                    <div class="p-3 bg-[var(--accent-orange)] text-black font-bold rounded-lg animated-item"><strong>Cấp
+                            5: Learning Agent</strong> - Tự học hỏi để cải thiện (AI chơi cờ).</div>
                 </div>
             </div>
         </section>
 
-        <!-- Slide 16: Vấn đề M x N -->
-        <section class="slide" id="slide-16">
+        <!-- Slide 17: Vấn đề M x N -->
+        <section class="slide" id="slide-17">
             <div class="slide-content text-center">
-                 <h2 class="slide-title">Vấn đề tích hợp: "Cơn ác mộng M x N"</h2>
-                <p class="slide-subtitle">Kết nối M mô hình AI với N công cụ/API.</p>
-                <div class="text-2xl font-bold">Mô hình AI &times; N Công cụ = M &times; N Kết nối</div>
+                <h2 class="slide-title animated-item">Vấn đề tích hợp: "Cơn ác mộng M x N"</h2>
+                <p class="slide-subtitle animated-item">Kết nối M mô hình AI với N công cụ/API.</p>
+                <div class="text-2xl font-bold animated-item">Mô hình AI &times; N Công cụ = M &times; N Kết nối</div>
                 <div id="m-n-problem" class="d3-container h-96 mt-4"></div>
             </div>
         </section>
 
-        <!-- Slide 17: Giải pháp MCP -->
-        <section class="slide" id="slide-17">
+        <!-- Slide 18: Giải pháp MCP -->
+        <section class="slide" id="slide-18">
             <div class="slide-content text-center">
-                <h2 class="slide-title">Giải pháp: MCP (Model Context Protocol)</h2>
-                <p class="slide-subtitle text-3xl font-bold text-[var(--accent-orange)]">"USB-C của AI"</p>
-                <p class="text-xl mb-6">Một giao thức mở, tiêu chuẩn hóa cách LLM (host) và công cụ (server) giao tiếp với nhau.</p>
+                <h2 class="slide-title animated-item">Giải pháp: MCP (Model Context Protocol)</h2>
+                <p class="slide-subtitle text-3xl font-bold text-[var(--accent-orange)] animated-item">"USB-C của AI"
+                </p>
+                <p class="text-xl mb-6 animated-item">Một giao thức mở, tiêu chuẩn hóa cách LLM (host) và công cụ
+                    (server) giao tiếp với nhau.</p>
                 <div id="mcp-solution" class="d3-container h-80"></div>
             </div>
         </section>
 
-        <!-- Slide 18: Kiến trúc MCP -->
-        <section class="slide" id="slide-18">
+        <!-- Slide 19: Kiến trúc MCP -->
+        <section class="slide" id="slide-19">
             <div class="slide-content">
-                <h2 class="slide-title">Kiến trúc & Luồng hoạt động của MCP</h2>
-                <div class="grid grid-cols-2 gap-8 mt-6">
-                    <div>
-                        <h3 class="font-bold text-xl text-white mb-2">Kiến trúc</h3>
-                        <p><strong>MCP Host (Client):</strong> Ứng dụng AI (Claude, ChatGPT)</p>
-                        <p><strong>MCP Server (Server):</strong> Dịch vụ cung cấp công cụ (API GitHub, Slack)</p>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-xl text-white mb-2">Luồng hoạt động</h3>
-                        <ol class="list-decimal list-inside space-y-1">
-                            <li><strong>Kết nối & Đàm phán:</strong> Host hỏi Server: "Bạn làm được gì?"</li>
-                            <li><strong>Yêu cầu:</strong> Host gửi lệnh (JSON-RPC)</li>
-                            <li><strong>Thực thi & Phản hồi:</strong> Server thực thi và trả về kết quả</li>
-                        </ol>
-                    </div>
-                </div>
+                <h2 class="slide-title animated-item">Kiến trúc MCP</h2>
+                <p class="slide-subtitle animated-item">Sơ đồ luồng hoạt động tổng quan</p>
+                <div id="mcp-architecture-diagram" class="d3-container h-[55vh] flex justify-center items-center"></div>
             </div>
         </section>
 
-        <!-- Slide 19: Hệ sinh thái MCP -->
-        <section class="slide" id="slide-19">
+        <!-- Slide 20: Hệ sinh thái MCP -->
+        <section class="slide" id="slide-20">
             <div class="slide-content">
-                <h2 class="slide-title">Hệ sinh thái MCP và Tương lai</h2>
+                <h2 class="slide-title animated-item">Hệ sinh thái MCP và Tương lai</h2>
                 <ul class="list-disc list-inside mt-6 space-y-3 text-lg">
-                    <li><strong>Hỗ trợ bởi:</strong> Anthropic, OpenAI, Google DeepMind, Microsoft.</li>
-                    <li><strong>Ứng dụng thực tế:</strong> Coding Assistants (Sourcegraph), Windows Copilot.</li>
-                    <li class="font-bold text-white"><strong>Tương lai:</strong> MCP hứa hẹn tạo ra một thị trường mở cho các "công cụ AI", nơi các nhà phát triển có thể xây dựng và chia sẻ các server MCP.</li>
+                    <li class="animated-item"><strong>Hỗ trợ bởi:</strong> Anthropic, OpenAI, Google DeepMind,
+                        Microsoft.</li>
+                    <li class="animated-item"><strong>Ứng dụng thực tế:</strong> Coding Assistants (Sourcegraph),
+                        Windows Copilot.</li>
+                    <li class="font-bold text-white animated-item"><strong>Tương lai:</strong> MCP hứa hẹn tạo ra một
+                        thị trường mở cho các "công cụ AI", nơi các nhà phát triển có thể xây dựng và chia sẻ các server
+                        MCP.</li>
                 </ul>
             </div>
         </section>
-        
-        <!-- Slide 20: Case Study Koog -->
-        <section class="slide" id="slide-20">
+
+        <!-- Slide 21: Case Study Koog -->
+        <section class="slide" id="slide-21">
             <div class="slide-content">
-                 <h2 class="slide-title">Case Study: Koog AI Framework trên Android</h2>
-                 <p class="slide-subtitle">Chuyển từ lý thuyết sang thực tế.</p>
-                 <ul class="list-disc list-inside mt-6 space-y-3 text-lg">
-                    <li><strong>Koog là gì?</strong> Một framework mã nguồn mở bằng Kotlin giúp xây dựng AI Agent trên Android.</li>
-                    <li><strong>Mục đích:</strong> Cho thấy cách các khái niệm (Agent, Tool, Memory) được áp dụng trong một môi trường cụ thể.</li>
-                    <li><strong>Tầm quan trọng:</strong> Mang thế giới AI Agent đến với hàng tỷ thiết bị di động.</li>
-                 </ul>
+                <h2 class="slide-title animated-item">Case Study: Koog AI Framework trên Android</h2>
+                <p class="slide-subtitle animated-item">Chuyển từ lý thuyết sang thực tế.</p>
+                <ul class="list-disc list-inside mt-6 space-y-3 text-lg">
+                    <li class="animated-item"><strong>Koog là gì?</strong> Một framework mã nguồn mở bằng Kotlin giúp
+                        xây dựng AI Agent trên Android.</li>
+                    <li class="animated-item"><strong>Mục đích:</strong> Cho thấy cách các khái niệm (Agent, Tool,
+                        Memory) được áp dụng trong một môi trường cụ thể.</li>
+                    <li class="animated-item"><strong>Tầm quan trọng:</strong> Mang thế giới AI Agent đến với hàng tỷ
+                        thiết bị di động.</li>
+                </ul>
             </div>
         </section>
 
-        <!-- Slide 21: Koog trong thực tế -->
-        <section class="slide" id="slide-21">
+        <!-- Slide 22: Koog trong thực tế -->
+        <section class="slide" id="slide-22">
             <div class="slide-content">
-                 <h2 class="slide-title">Koog trong thực tế: Agent đơn giản vs. Phức tạp</h2>
+                <h2 class="slide-title animated-item">Koog trong thực tế: Agent đơn giản vs. Phức tạp</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-                    <div>
+                    <div class="animated-item">
                         <h3 class="text-xl font-bold text-white mb-2">Agent đơn giản (stateless)</h3>
-                        <p class="mb-2"><strong>ToneAnalysisAgent:</strong> Chỉ nhận văn bản, gọi API phân tích và trả kết quả. Không cần nhớ gì.</p>
+                        <p class="mb-2"><strong>ToneAnalysisAgent:</strong> Chỉ nhận văn bản, gọi API phân tích và trả
+                            kết quả. Không cần nhớ gì.</p>
                     </div>
-                    <div>
+                    <div class="animated-item">
                         <h3 class="text-xl font-bold text-white mb-2">Agent phức tạp (stateful)</h3>
-                        <p class="mb-2"><strong>CustomerSupportAgent:</strong> Kết hợp nhiều công cụ (lấy thông tin user, chẩn đoán lỗi), có bộ nhớ để theo dõi cuộc trò chuyện dài.</p>
+                        <p class="mb-2"><strong>CustomerSupportAgent:</strong> Kết hợp nhiều công cụ (lấy thông tin
+                            user, chẩn đoán lỗi), có bộ nhớ để theo dõi cuộc trò chuyện dài.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Slide 22: Tổng kết -->
-        <section class="slide" id="slide-22">
-            <div class="slide-content">
-                 <h2 class="slide-title">Tổng kết những điểm chính</h2>
-                 <ol class="list-decimal list-inside space-y-4 text-xl mt-6">
-                    <li><strong>LLM là nền tảng, nhưng có hạn chế:</strong> Cần nhận thức rõ về "ảo giác".</li>
-                    <li><strong>Prompt Engineering là kỹ năng thiết yếu:</strong> Để khai thác tối đa và kiểm soát LLM.</li>
-                    <li><strong>AI Agent là bước tiến hóa tiếp theo:</strong> Chuyển từ AI phản hồi sang AI hành động.</li>
-                    <li><strong>Tiêu chuẩn hóa (như MCP) là chìa khóa:</strong> Để xây dựng một hệ sinh thái AI mạnh mẽ.</li>
-                </ol>
-            </div>
-        </section>
-        
-        <!-- Slide 23: Tương lai -->
+        <!-- Slide 23: AI Tools 1 -->
         <section class="slide" id="slide-23">
             <div class="slide-content">
-                 <h2 class="slide-title">Tương lai là "Agentic" - Điều gì sắp xảy ra?</h2>
-                 <ul class="list-disc list-inside mt-6 space-y-3 text-lg">
-                    <li><strong>Trợ lý cá nhân thực thụ:</strong> Quản lý lịch, email, đặt chỗ một cách liền mạch.</li>
-                    <li><strong>Tự động hóa công việc phức tạp:</strong> Tự động viết code, phân tích dữ liệu, tạo báo cáo.</li>
-                    <li><strong>Sự thay đổi giao diện người dùng:</strong> Từ đồ họa (GUI) sang đàm thoại (CUI).</li>
-                    <li><strong>Thách thức:</strong> Vấn đề đạo đức, bảo mật, và kiểm soát các agent tự chủ.</li>
-                 </ul>
+                <h2 class="slide-title animated-item">Hệ Sinh Thái Công Cụ AI (Phần 1)</h2>
+                <p class="slide-subtitle animated-item">Giao tiếp, Sáng tạo & Tìm kiếm thông minh</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4 text-lg">
+                    <div class="bg-[#21262d] p-6 rounded-lg animated-item">
+                        <h3 class="font-bold text-white text-xl mb-3">AI Assistants (Chatbots)</h3>
+                        <p class="text-[var(--text-secondary)]">ChatGPT, Claude, Gemini, DeepSeek, Grok</p>
+                    </div>
+                    <div class="bg-[#21262d] p-6 rounded-lg animated-item">
+                        <h3 class="font-bold text-white text-xl mb-3">Image Generation</h3>
+                        <p class="text-[var(--text-secondary)]">GPT-4o, Midjourney</p>
+                    </div>
+                    <div class="bg-[#21262d] p-6 rounded-lg animated-item">
+                        <h3 class="font-bold text-white text-xl mb-3">Search Engines</h3>
+                        <p class="text-[var(--text-secondary)]">Perplexity, ChatGPT search</p>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <!-- Slide 24: Q&A -->
+        <!-- Slide 24: AI Tools 2 -->
         <section class="slide" id="slide-24">
+            <div class="slide-content">
+                <h2 class="slide-title animated-item">Hệ Sinh Thái Công Cụ AI (Phần 2)</h2>
+                <p class="slide-subtitle animated-item">Tự động hóa, Nghiên cứu & Xây dựng sản phẩm</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4 text-lg">
+                    <div class="bg-[#21262d] p-6 rounded-lg animated-item">
+                        <h3 class="font-bold text-white text-xl mb-3">Automation</h3>
+                        <p class="text-[var(--text-secondary)]">n8n</p>
+                    </div>
+                    <div class="bg-[#21262d] p-6 rounded-lg animated-item">
+                        <h3 class="font-bold text-white text-xl mb-3">Research/Education</h3>
+                        <p class="text-[var(--text-secondary)]">Deep Research, NotebookLM</p>
+                    </div>
+                    <div class="bg-[#21262d] p-6 rounded-lg animated-item">
+                        <h3 class="font-bold text-white text-xl mb-3">App Builders & Coding</h3>
+                        <p class="text-[var(--text-secondary)]">Bubble, Bolt, Lovable, Cursor, v0</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 25: Tổng kết -->
+        <section class="slide" id="slide-25">
+            <div class="slide-content">
+                <h2 class="slide-title animated-item">Tổng kết những điểm chính</h2>
+                <ol class="list-decimal list-inside space-y-4 text-xl mt-6">
+                    <li class="animated-item"><strong>LLM là nền tảng, nhưng có hạn chế:</strong> Cần nhận thức rõ về
+                        "ảo giác".</li>
+                    <li class="animated-item"><strong>Prompt Engineering là kỹ năng thiết yếu:</strong> Để khai thác tối
+                        đa và kiểm soát LLM.</li>
+                    <li class="animated-item"><strong>AI Agent là bước tiến hóa tiếp theo:</strong> Chuyển từ AI phản
+                        hồi sang AI hành động.</li>
+                    <li class="animated-item"><strong>Tiêu chuẩn hóa (như MCP) là chìa khóa:</strong> Để xây dựng một hệ
+                        sinh thái AI mạnh mẽ.</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Slide 26: Tương lai -->
+        <section class="slide" id="slide-26">
+            <div class="slide-content">
+                <h2 class="slide-title animated-item">Tương lai là "Agentic" - Điều gì sắp xảy ra?</h2>
+                <ul class="list-disc list-inside mt-6 space-y-3 text-lg">
+                    <li class="animated-item"><strong>Trợ lý cá nhân thực thụ:</strong> Quản lý lịch, email, đặt chỗ một
+                        cách liền mạch.</li>
+                    <li class="animated-item"><strong>Tự động hóa công việc phức tạp:</strong> Tự động viết code, phân
+                        tích dữ liệu, tạo báo cáo.</li>
+                    <li class="animated-item"><strong>Sự thay đổi giao diện người dùng:</strong> Từ đồ họa (GUI) sang
+                        đàm thoại (CUI).</li>
+                    <li class="animated-item"><strong>Thách thức:</strong> Vấn đề đạo đức, bảo mật, và kiểm soát các
+                        agent tự chủ.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Slide 27: Q&A -->
+        <section class="slide" id="slide-27">
             <div class="slide-content text-center">
-                 <h1 class="text-8xl font-black text-white">Q&A</h1>
-                 <p class="text-3xl mt-8 mb-12 text-[var(--accent-orange)]">Cảm ơn sự lắng nghe của mọi người!</p>
-                 <div class="mt-12 border-t border-[var(--border-color)] pt-6">
-                    <p class="text-xl text-white">[Tên của bạn]</p>
-                    <p class="text-lg text-[var(--text-secondary)]">[LinkedIn / Email / Twitter]</p>
+                <h1 class="text-8xl font-black text-white animated-item">Q&A</h1>
+                <p class="text-3xl mt-8 mb-12 text-[var(--accent-orange)] animated-item">Cảm ơn sự lắng nghe của mọi
+                    người!</p>
+                <div class="mt-12 border-t border-[var(--border-color)] pt-6 animated-item">
+                    <p class="text-xl text-white">NamNV</p>
+                    <p class="text-lg text-[var(--text-secondary)]">namnv@ikameglobal.com</p>
                 </div>
             </div>
         </section>
     </main>
-    
+
     <div id="navigation">
         <button id="prev-btn" class="nav-button">&larr; Trước</button>
-        <div id="slide-counter">1 / 24</div>
+        <div id="slide-counter">1 / 27</div>
         <button id="next-btn" class="nav-button">Tiếp &rarr;</button>
     </div>
 
@@ -622,35 +783,66 @@
         let currentSlide = 0;
         const totalSlides = slides.length;
         const d3RenderFlags = {}; // Để đảm bảo D3 chỉ render 1 lần
+        let isTransitioning = false;
 
         function showSlide(index) {
-            // Ẩn slide hiện tại
-            if (slides[currentSlide]) {
-                slides[currentSlide].classList.remove('active');
-            }
-            
-            // Cập nhật slide hiện tại
-            currentSlide = index;
+            const oldSlide = document.querySelector('.slide.active');
 
-            // Hiển thị slide mới
-            if (slides[currentSlide]) {
-                slides[currentSlide].classList.add('active');
-                // Chạy animation cho các item trong slide
-                const animatedItems = slides[currentSlide].querySelectorAll('.animated-item');
-                animatedItems.forEach((item, i) => {
-                    item.style.animationDelay = `${i * 0.1}s`;
-                    // Reset animation
-                    item.style.animation = 'none';
-                    item.offsetHeight; /* Kích hoạt reflow */
-                    item.style.animation = ''; 
+            if (isTransitioning || (oldSlide && index === currentSlide)) return;
+            isTransitioning = true;
+
+            const newSlide = slides[index];
+            const newItems = newSlide.querySelectorAll('.animated-item');
+
+            const tl = gsap.timeline({
+                onComplete: () => {
+                    if (oldSlide) {
+                        oldSlide.classList.remove('active');
+                        // Reset properties for performance and predictability
+                        gsap.set(oldSlide, { clearProps: 'all' });
+                    }
+                    newSlide.classList.add('active');
+                    currentSlide = index;
+                    updateControls();
+                    runSlideSpecificFunctions(currentSlide);
+                    isTransitioning = false;
+                }
+            });
+
+            // Animate out the old slide if it exists
+            if (oldSlide) {
+                tl.to(oldSlide, {
+                    scale: 0.9,
+                    autoAlpha: 0,
+                    duration: 0.7,
+                    ease: 'power2.in'
                 });
             }
 
-            // Cập nhật bộ đếm và nút
-            updateControls();
-            
-            // Chạy các hàm D3.js nếu cần
-            runSlideSpecificFunctions(currentSlide);
+            // Animate in the new slide
+            tl.fromTo(newSlide,
+                { scale: 1.1, autoAlpha: 0 },
+                {
+                    scale: 1,
+                    autoAlpha: 1,
+                    duration: 0.7,
+                    ease: 'power2.out'
+                },
+                oldSlide ? "-=0.2" : "<" // Overlap transition for a smoother effect
+            );
+
+            // Animate in the new slide's content, overlapping with the slide transition
+            tl.fromTo(newItems,
+                { y: 25, autoAlpha: 0 },
+                {
+                    y: 0,
+                    autoAlpha: 1,
+                    stagger: 0.1,
+                    duration: 0.5,
+                    ease: 'power2.out'
+                },
+                "-=0.4"
+            );
         }
 
         function updateControls() {
@@ -670,7 +862,7 @@
                 showSlide(currentSlide - 1);
             }
         }
-        
+
         // Tương tác cho slide 2
         function toggleAnswer(element) {
             const answer = element.querySelector('.answer');
@@ -680,7 +872,7 @@
                 answer.style.display = 'block';
             }
         }
-        
+
         // Điều khiển bằng bàn phím
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight') {
@@ -695,29 +887,35 @@
         nextBtn.addEventListener('click', nextSlide);
 
         // --- CÁC HÀM D3.JS VÀ ANIMATION CHO TỪNG SLIDE ---
-        
+
         function runSlideSpecificFunctions(index) {
             // Sử dụng các biến CSS trong JavaScript
             const accentOrange = getComputedStyle(document.documentElement).getPropertyValue('--accent-orange').trim();
             const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim();
             const borderColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim();
 
-            switch(index) {
-                case 2: // Slide 3: Venn Diagram
+            switch (index) {
+                case 3: // Slide 4: Venn Diagram
                     if (!d3RenderFlags[index]) {
                         createVennDiagram(accentOrange);
                         d3RenderFlags[index] = true;
                     }
                     break;
-                case 15: // Slide 16: M x N Problem
+                case 16: // Slide 17: M x N Problem
                     if (!d3RenderFlags[index]) {
                         createMxNProblemDiagram(accentOrange, textColor, borderColor);
                         d3RenderFlags[index] = true;
                     }
                     break;
-                case 16: // Slide 17: MCP Solution
+                case 17: // Slide 18: MCP Solution
                     if (!d3RenderFlags[index]) {
                         createMCPSolutionDiagram(accentOrange, textColor);
+                        d3RenderFlags[index] = true;
+                    }
+                    break;
+                case 18: // Slide 19: MCP Architecture
+                    if (!d3RenderFlags[index]) {
+                        createMCPArchitectureDiagram(accentOrange, textColor, borderColor);
                         d3RenderFlags[index] = true;
                     }
                     break;
@@ -728,18 +926,20 @@
             const container = d3.select("#venn-diagram");
             container.html(''); // Xóa nội dung cũ
             const width = 500;
-            const height = 350;
+            const height = 400; // Tăng chiều cao để có thêm không gian
 
             const svg = container.append("svg")
                 .attr("viewBox", `0 0 ${width} ${height}`);
 
+            const y_center = height / 2 + 15; // Dịch chuyển tâm xuống một chút
+
             const sets = [
-                { text: 'AI', x: width / 2, y: height / 2, r: 160 },
-                { text: 'Machine Learning', x: width / 2, y: height / 2, r: 130 },
-                { text: 'Deep Learning', x: width / 2, y: height / 2, r: 90 },
-                { text: 'Generative AI', x: width / 2, y: height / 2, r: 50 }
+                { text: 'AI', x: width / 2, y: y_center, r: 160 },
+                { text: 'Machine Learning', x: width / 2, y: y_center, r: 130 },
+                { text: 'Deep Learning', x: width / 2, y: y_center, r: 90 },
+                { text: 'Generative AI', x: width / 2, y: y_center, r: 50 }
             ];
-            
+
             // Màu sắc dựa trên màu cam chủ đạo, giảm độ sáng dần
             const colors = [d3.color(accentOrange).darker(2.5), d3.color(accentOrange).darker(1.5), d3.color(accentOrange).darker(0.5), accentOrange];
 
@@ -757,12 +957,16 @@
                 .duration(1000)
                 .delay((d, i) => i * 200)
                 .attr("r", d => d.r);
-            
+
             groups.append("text")
                 .attr("x", d => d.x)
-                .attr("y", (d,i) => {
-                    if (i === sets.length - 1) return d.y;
-                    return d.y - d.r + 20;
+                .attr("y", (d, i) => {
+                    if (i === sets.length - 1) { // Generative AI ở tâm
+                        return d.y;
+                    }
+                    // Đặt văn bản ở giữa vành đai của nó
+                    const innerRadius = sets[i + 1].r;
+                    return d.y - innerRadius - (d.r - innerRadius) / 2;
                 })
                 .text(d => d.text)
                 .attr("text-anchor", "middle")
@@ -772,37 +976,37 @@
                 .delay((d, i) => 800 + i * 200)
                 .style("opacity", 1);
         }
-        
+
         function createMxNProblemDiagram(accentOrange, textColor, borderColor) {
-             const container = d3.select("#m-n-problem");
-             container.html('');
-             const width = 600;
-             const height = 384;
-             const svg = container.append("svg").attr("viewBox", `0 0 ${width} ${height}`);
-             
-             const models = [
-                 { id: 'm1', x: 50, y: 50 }, { id: 'm2', x: 50, y: 150 }, { id: 'm3', x: 50, y: 250 }
-             ];
-             const tools = [
-                 { id: 't1', x: 550, y: 50 }, { id: 't2', x: 550, y: 150 }, { id: 't3', x: 550, y: 250 }, { id: 't4', x: 550, y: 350 }
-             ];
-             
-             models.forEach(m => {
-                 tools.forEach(t => {
-                     svg.append('line')
+            const container = d3.select("#m-n-problem");
+            container.html('');
+            const width = 600;
+            const height = 384;
+            const svg = container.append("svg").attr("viewBox", `0 0 ${width} ${height}`);
+
+            const models = [
+                { id: 'm1', x: 50, y: 50 }, { id: 'm2', x: 50, y: 150 }, { id: 'm3', x: 50, y: 250 }
+            ];
+            const tools = [
+                { id: 't1', x: 550, y: 50 }, { id: 't2', x: 550, y: 150 }, { id: 't3', x: 550, y: 250 }, { id: 't4', x: 550, y: 350 }
+            ];
+
+            models.forEach(m => {
+                tools.forEach(t => {
+                    svg.append('line')
                         .attr('x1', m.x).attr('y1', m.y)
                         .attr('x2', t.x).attr('y2', t.y)
                         .attr('stroke', borderColor).attr('stroke-width', 1)
                         .style("opacity", 0)
                         .transition().duration(1000).delay(Math.random() * 500)
                         .style("opacity", 1);
-                 });
-             });
-             
-             svg.selectAll('.model').data(models).enter().append('circle')
+                });
+            });
+
+            svg.selectAll('.model').data(models).enter().append('circle')
                 .attr('cx', d => d.x).attr('cy', d => d.y).attr('r', 15)
                 .attr('fill', accentOrange);
-             svg.selectAll('.tool').data(tools).enter().append('circle')
+            svg.selectAll('.tool').data(tools).enter().append('circle')
                 .attr('cx', d => d.x).attr('cy', d => d.y).attr('r', 15)
                 .attr('fill', textColor);
         }
@@ -819,24 +1023,24 @@
                 { id: 'm1', x: 50, y: 50 }, { id: 'm2', x: 50, y: 150 }, { id: 'm3', x: 50, y: 250 }
             ];
             const tools = [
-                 { id: 't1', x: 550, y: 50 }, { id: 't2', x: 550, y: 150 }, { id: 't3', x: 550, y: 250 }
+                { id: 't1', x: 550, y: 50 }, { id: 't2', x: 550, y: 150 }, { id: 't3', x: 550, y: 250 }
             ];
-            
+
             // Draw Hub
             svg.append('rect').attr('x', hub.x - 10).attr('y', 20).attr('width', 20).attr('height', height - 40)
-               .attr('fill', accentOrange).attr('rx', 10);
+                .attr('fill', accentOrange).attr('rx', 10);
             svg.append('text').text('MCP').attr('x', hub.x).attr('y', hub.y).attr('text-anchor', 'middle').attr('fill', 'black').attr('font-weight', 'bold');
 
             [...models, ...tools].forEach(node => {
                 svg.append('line')
-                   .attr('x1', node.x).attr('y1', node.y)
-                   .attr('x2', hub.x).attr('y2', node.y)
-                   .attr('stroke', textColor).attr('stroke-dasharray', '5,5')
-                   .style("opacity", 0)
-                   .transition().duration(1000).delay(Math.random() * 500)
-                   .style("opacity", 1);
+                    .attr('x1', node.x).attr('y1', node.y)
+                    .attr('x2', hub.x).attr('y2', node.y)
+                    .attr('stroke', textColor).attr('stroke-dasharray', '5,5')
+                    .style("opacity", 0)
+                    .transition().duration(1000).delay(Math.random() * 500)
+                    .style("opacity", 1);
             });
-            
+
             svg.selectAll('.model').data(models).enter().append('circle')
                 .attr('cx', d => d.x).attr('cy', d => d.y).attr('r', 15)
                 .attr('fill', textColor);
@@ -845,8 +1049,172 @@
                 .attr('fill', textColor);
         }
 
+        function createMCPArchitectureDiagram(accentOrange, textColor, borderColor) {
+            const container = d3.select("#mcp-architecture-diagram");
+            container.html('');
+            const width = 850;
+            const height = 550;
+            const svg = container.append("svg").attr("viewBox", `0 0 ${width} ${height}`);
+
+            const boxFill = "#21262d";
+            const boxStroke = borderColor;
+            const computerBoxFill = "rgba(0,0,0,0.1)";
+
+            svg.append("rect")
+                .attr("x", 5)
+                .attr("y", 5)
+                .attr("width", width - 10)
+                .attr("height", 390)
+                .attr("fill", computerBoxFill)
+                .attr("stroke", boxStroke)
+                .attr("rx", 15);
+
+            const nodes = {
+                host: { x: 140, y: 200, w: 180, h: 70, label: "Host with MCP Client<br>(Claude, IDEs, Tools)" },
+                serverA: { x: 400, y: 100, w: 140, h: 50, label: "MCP Server A" },
+                serverB: { x: 400, y: 200, w: 140, h: 50, label: "MCP Server B" },
+                serverC: { x: 400, y: 300, w: 140, h: 50, label: "MCP Server C" },
+                localA: { x: 680, y: 100, type: 'db', label: "Local<br>Data Source A" },
+                localB: { x: 680, y: 200, type: 'db', label: "Local<br>Data Source B" },
+                remoteC: { x: 680, y: 480, type: 'db', label: "Remote<br>Service C" },
+                internet: { x: 680, y: 480, w: 200, h: 120, label: "Internet" }
+            };
+
+            svg.append("rect")
+                .attr("x", nodes.internet.x - nodes.internet.w / 2)
+                .attr("y", nodes.internet.y - nodes.internet.h / 2)
+                .attr("width", nodes.internet.w)
+                .attr("height", nodes.internet.h)
+                .attr("fill", computerBoxFill)
+                .attr("stroke", boxStroke)
+                .attr("rx", 15);
+
+            const arrowMarker = svg.append("defs").append("marker")
+                .attr("id", "arrowhead")
+                .attr("viewBox", "-0 -5 10 10")
+                .attr("refX", 8)
+                .attr("refY", 0)
+                .attr("orient", "auto")
+                .attr("markerWidth", 5)
+                .attr("markerHeight", 5)
+                .append("svg:path")
+                .attr("d", "M 0,-5 L 10 ,0 L 0,5")
+                .attr("fill", textColor);
+
+            function drawLineWithLabel(x1, y1, x2, y2, label, curved = false) {
+                let path;
+                if (curved) {
+                    const dx = x2 - x1, dy = y2 - y1;
+                    const c1x = x1 + dx * 0.5, c1y = y1 - dy * 0.2;
+                    const c2x = x1 + dx * 0.5, c2y = y2 + dy * 0.2;
+                    path = `M${x1},${y1} C${c1x},${c1y} ${c2x},${c2y} ${x2},${y2}`;
+                } else {
+                    path = `M${x1},${y1}L${x2},${y2}`;
+                }
+
+                svg.append("path")
+                    .attr("d", path)
+                    .attr("stroke", textColor)
+                    .attr("stroke-width", 1.5)
+                    .attr("fill", "none")
+                    .attr("marker-end", "url(#arrowhead)");
+
+                if (label) {
+                    const midX = x1 + (x2 - x1) * 0.5;
+                    const midY = y1 + (y2 - y1) * 0.5;
+                    svg.append("text")
+                        .attr("x", midX)
+                        .attr("y", midY - 10)
+                        .attr("text-anchor", "middle")
+                        .attr("fill", textColor)
+                        .style("font-size", "12px")
+                        .style("background-color", "var(--bg-dark)")
+                        .text(label);
+                }
+            }
+
+            drawLineWithLabel(nodes.host.x + nodes.host.w / 2, nodes.host.y, nodes.serverA.x - nodes.serverA.w / 2, nodes.serverA.y, "MCP Protocol");
+            drawLineWithLabel(nodes.host.x + nodes.host.w / 2, nodes.host.y, nodes.serverB.x - nodes.serverB.w / 2, nodes.serverB.y, "MCP Protocol");
+            drawLineWithLabel(nodes.host.x + nodes.host.w / 2, nodes.host.y, nodes.serverC.x - nodes.serverC.w / 2, nodes.serverC.y, "MCP Protocol");
+
+            drawLineWithLabel(nodes.serverA.x + nodes.serverA.w / 2, nodes.serverA.y, nodes.localA.x - 50, nodes.localA.y, "");
+            drawLineWithLabel(nodes.serverB.x + nodes.serverB.w / 2, nodes.serverB.y, nodes.localB.x - 50, nodes.localB.y, "");
+
+            const serverCExitX = nodes.serverC.x + nodes.serverC.w / 2;
+            const serverCExitY = nodes.serverC.y;
+            const remoteCEnterX = nodes.remoteC.x - 50;
+            const remoteCEnterY = nodes.remoteC.y;
+
+            const pathData = d3.path();
+            pathData.moveTo(serverCExitX, serverCExitY);
+            pathData.bezierCurveTo(serverCExitX + 80, serverCExitY, remoteCEnterX - 80, remoteCEnterY, remoteCEnterX, remoteCEnterY);
+
+            svg.append("path")
+                .attr("d", pathData.toString())
+                .attr("stroke", textColor)
+                .attr("stroke-width", 1.5)
+                .attr("fill", "none")
+                .attr("marker-end", "url(#arrowhead)");
+
+            svg.append("text")
+                .attr("x", serverCExitX + 80)
+                .attr("y", serverCExitY + 40)
+                .attr("text-anchor", "middle")
+                .attr("fill", textColor).style("font-size", "12px").text("Web APIs");
+
+            Object.values(nodes).forEach(node => {
+                const g = svg.append("g");
+                if (node.type === 'db') {
+                    const rx = 50, ry = 15, h = 40;
+                    const cx = node.x, cy = node.y;
+                    const dbGroup = g.append("g");
+                    dbGroup.append("ellipse").attr("cx", cx).attr("cy", cy + h / 2).attr("rx", rx).attr("ry", ry).attr("fill", boxFill).attr("stroke", boxStroke);
+                    dbGroup.append("rect").attr("x", cx - rx).attr("y", cy - h / 2).attr("width", 2 * rx).attr("height", h).attr("fill", boxFill);
+                    dbGroup.append("line").attr("x1", cx - rx).attr("y1", cy - h / 2).attr("x2", cx - rx).attr("y2", cy + h / 2).attr("stroke", boxStroke);
+                    dbGroup.append("line").attr("x1", cx + rx).attr("y1", cy - h / 2).attr("x2", cx + rx).attr("y2", cy + h / 2).attr("stroke", boxStroke);
+                    dbGroup.append("ellipse").attr("cx", cx).attr("cy", cy - h / 2).attr("rx", rx).attr("ry", ry).attr("fill", boxFill).attr("stroke", boxStroke);
+                } else if (node.w) {
+                    g.append("rect")
+                        .attr("x", node.x - node.w / 2)
+                        .attr("y", node.y - node.h / 2)
+                        .attr("width", node.w)
+                        .attr("height", node.h)
+                        .attr("rx", 5)
+                        .attr("fill", boxFill)
+                        .attr("stroke", boxStroke);
+                }
+
+                const fo = g.append("foreignObject")
+                    .attr("x", node.x - node.w / 2)
+                    .attr("y", node.y - node.h / 2)
+                    .attr("width", node.w)
+                    .attr("height", node.h);
+
+                const div = fo.append("xhtml:div")
+                    .style("width", `${node.w}px`)
+                    .style("height", `${node.h}px`)
+                    .style("display", "flex")
+                    .style("justify-content", "center")
+                    .style("align-items", "center")
+                    .style("text-align", "center")
+                    .style("color", textColor)
+                    .style("font-size", node.label.includes("Host") ? "14px" : "13px")
+                    .html(node.label);
+            });
+        }
+
+        // Animate logo on load
+        gsap.from("#logo", {
+            duration: 1.2,
+            scale: 0.5,
+            autoAlpha: 0,
+            ease: "back.out(1.7)",
+            delay: 0.3
+        });
+
         // Khởi tạo slide đầu tiên
         showSlide(0);
     </script>
 </body>
+
 </html>
